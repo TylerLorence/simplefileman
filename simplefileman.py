@@ -4,10 +4,12 @@ import logging
 
 """
 Tyler Lorence's Project #1 (Untitled)
-Version Pre-Indev (SNAPSHOT 1 - 30 MINUTE MARK)
+Version Pre-Indev (SNAPSHOT 2 - 60 MINUTE MARK)
 
 TODO: Add error handling with Try/Except.
 TODO: Add error logging with the logging module.
+TODO: Add 'appendfile' command
+TODO: Add 'help' command
 TODO: Other ideas that come to me along the way.
 
 
@@ -21,8 +23,8 @@ stream_handler = logging.StreamHandler()
 file_handler = logging.FileHandler("FourthPlayground.log", mode="w")
 
 logger.setLevel(logging.DEBUG)
-stream_handler.setLevel(logging.INFO)
-file_handler.setLevel(logging.INFO)
+stream_handler.setLevel(logging.DEBUG)
+file_handler.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter("%(asctime)s [%(name)s / %(levelname)s]: %(message)s")
 stream_handler.setFormatter(formatter)
@@ -64,11 +66,20 @@ def read(file):
     with open(file, "r") as f:
         print(f"""\
             ----- File {file} -----
-{f.readlines()}
+{f.read()}
         """)
 
 def remove_file(file):
     os.remove(file)
+
+def write_to_file(*contents):
+    with open(contents[0][0], "w+") as f:
+        logger.debug(f"\"*contents*\" parameter provided: {contents} / First index (at index 0) of contents parameter: {contents[0]}")
+        joined_contents = " ".join(contents[0][1:])
+        logger.debug(f"Joined contents via \"joined_contents\". type(joined_contents): {type(joined_contents)} / Joined Contents: {joined_contents}")
+        f.write(joined_contents)
+        # to_write = " ".join(contents[1:])
+
 
 while True:
     user_input = input(f"{os.getcwd()}>").split(" ")
@@ -104,6 +115,8 @@ while True:
                     print("Invalid option! Please enter \"y\" or \"n\" for this prompt.")
     elif user_input[0].casefold() == "read" or user_input[0].casefold() == "more":
         read(user_input[1])
+    elif user_input[0].casefold() == "write" or user_input[0].casefold() == "writeto":
+        write_to_file(user_input[1:])
     elif user_input[0].casefold() == "exit":
         exit(0)
     else:
