@@ -5,8 +5,8 @@ import logging
 
 
 """
-Tyler Lorence's Project #1 (Untitled)
-Version Pre-Indev (SNAPSHOT 4.2)
+simplefileman - CLI-Based File Manager by Tyler Lorence
+Version Pre-Indev (SNAPSHOT 4.4)
 
 TODO: Add error handling with Try/Except.
 TODO: Add error logging with the logging module.
@@ -94,6 +94,19 @@ def write_to_file(*contents):
         logger.error(f"Error attempting to write to file: Cannot find the file {contents[0][1]}")
 
 
+def filesize(file):
+    if os.stat(file).st_size < 1000:
+        return f"Size of File {file}: {os.stat(file).st_size} Bytes"
+    elif os.stat(file).st_size >= 1000 and os.stat(file).st_size < 1000000:
+        return f"Size of File {file}: {round((os.stat(file).st_size / 1000), 2)} Kilobytes"
+    elif os.stat(file).st_size >= 1000000 and os.stat(file).st_size < 1000000000:
+        return f"Size of File {file}: {round((os.stat(file).st_size / 1000000), 2)} Megabytes"
+    elif os.stat(file).st_size >= 1000000000 and os.stat(file).st_size < 1000000000000:
+        return f"Size of File {file}: {round((os.stat(file).st_size / 1000000000), 2)} Gigabytes"
+    elif os.stat(file).st_size >= 1000000000000:
+        return f"Size of File {file}: {round((os.stat(file).st_size / 1000000000000), 2)} Terabytes"
+
+
 
 command_information = {
     ("help", "?"): "--- Command \"help\" / \"?\" ---\n\nReturns the list of commands, or information about a command\nUsage: help [command name]\nExample: help\nExample: help cd\n",
@@ -123,7 +136,11 @@ while True:
     elif user_input[0].casefold() == "cd":
         change_directory(user_input[1])
     elif user_input[0].casefold() == "createfile":
-        create_file(user_input[1])
+        try:
+            create_file(user_input[1])
+        except PermissionError:
+            logger.error(f"Error attempting to create file {user_input[1]}: Permission denied")
+            logger.debug("Developer Note: Use \"debug_uac\" to open an elevated instance.")
     elif user_input[0].casefold() == "md" or user_input[0].casefold() == "mkdir":
         try:
             make_directory(user_input[1])
@@ -132,27 +149,37 @@ while True:
         except FileExistsError:
             logger.error(f"Error attempting to make directory: Cannot create a directory when that directory already exists: '{user_input[1]}'")
     elif user_input[0].casefold() == "rd" or user_input[0].casefold() == "rmdir":
-        while True:
-            confirmation = input(f"WARNING: Are you sure you want to remove the directory \"{user_input[1]}\"? This action is permanent and cannot be undone. (Y/N)\n> ")
-            if confirmation.casefold() == "y":
-                remove_directory(user_input[1])
-                break
-            elif confirmation.casefold() == "n":
-                logger.info("Cancelled operation.")
-                break
-            else:
-                print("Invalid option! Please enter \"y\" or \"n\" for this prompt.")
-    elif user_input[0].casefold() == "del" or user_input[0].casefold() == "delete":
+        try:
             while True:
-                confirmation = input(f"WARNING: Are you sure you want to remove the file \"{user_input[1]}\"? This action is permanent and cannot be undone. (Y/N)\n> ")
+                confirmation = input(f"WARNING: Are you sure you want to remove the directory \"{user_input[1]}\"? This action is permanent and cannot be undone. (Y/N)\n> ")
                 if confirmation.casefold() == "y":
-                    remove_file(user_input[1])
+                    remove_directory(user_input[1])
                     break
                 elif confirmation.casefold() == "n":
                     logger.info("Cancelled operation.")
                     break
                 else:
                     print("Invalid option! Please enter \"y\" or \"n\" for this prompt.")
+        except PermissionError:
+            logger.error(f"Error attempting to delete folder '{user_input[1]}': Permission denied")
+            logger.debug("Developer Note: Use \"debug_uac\" to open an elevated instance.")
+            break
+    elif user_input[0].casefold() == "del" or user_input[0].casefold() == "delete":
+            while True:
+                try:
+                    confirmation = input(f"WARNING: Are you sure you want to remove the file \"{user_input[1]}\"? This action is permanent and cannot be undone. (Y/N)\n> ")
+                    if confirmation.casefold() == "y":
+                        remove_file(user_input[1])
+                        break
+                    elif confirmation.casefold() == "n":
+                        logger.info("Cancelled operation.")
+                        break
+                    else:
+                        print("Invalid option! Please enter \"y\" or \"n\" for this prompt.")
+                except PermissionError:
+                    logger.error(f"Error attempting to delete file '{user_input[1]}': Permission denied")
+                    logger.debug("Developer Note: Use \"debug_uac\" to open an elevated instance.")
+                    break
     elif user_input[0].casefold() == "read" or user_input[0].casefold() == "more":
         try:
             read(user_input[1])
@@ -163,6 +190,11 @@ while True:
             write_to_file(user_input[1:])
         except IndexError:
             logger.error(f"Error attempting to write to file: No filename was provided.")
+    elif user_input[0].casefold() == "filesize" or user_input[0].casefold() == "size":
+        try:
+            print(filesize(user_input[1]))
+        except IndexError:
+            logger.error(f"Error attempting to fetch file size: No argument provided!")
     elif user_input[0].casefold() == "help" or user_input[0].casefold() == "?":
         if len(user_input) == 1:
             print("""\
@@ -182,8 +214,6 @@ while True:
                     pass
             if found == 0:
                 logger.error(f"Error attempting to get information about command {user_input[1]}: Command Not Found!")
-            
-            
     elif user_input[0].casefold() == "exit":
         exit(0)
     elif user_input[0].casefold() == "debug_uac":
@@ -191,5 +221,28 @@ while True:
         # The documentation is based on the ShellExecuteA function, seen in Microsoft's documentation for the Win32 Shell API.
         # https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shellexecutea?redirectedfrom=MSDN
         ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
+    elif user_input[0].casefold() == "developer" or user_input[0].casefold() == "dev":
+        logger.info("Entering developer mode.")
+        while True:
+            dev_input = input("Dev >> ")
+            if dev_input.casefold() == "exit":
+                logger.info("Exiting developer mode.")
+                break
+            elif dev_input == "eval":
+                dev_eval = input("Dev/Eval >> ")
+                try:
+                    print(eval(dev_eval))
+                except Exception as e:
+                    print(f"""\
+                        An error has occured!
+                        Error Type: {type(e)}
+                        Error: {e}
+                        Error Args: {e.args}
+                    """)
+            elif dev_input.casefold() == "feval":
+                dev_eval = input("Dev/Forced_Eval >> ")
+                print(eval(dev_eval))
+            else:
+                logger.error("Dev Error: Invalid Command Provided!")
     else:
         print("Invalid command!")
