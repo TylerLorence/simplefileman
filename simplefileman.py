@@ -7,14 +7,13 @@ import logging
 
 """
 simplefileman - CLI-Based File Manager by Tyler Lorence
-Version Pre-Indev (SNAPSHOT 4.5)
+Version Pre-Indev (SNAPSHOT 4.5.1)
 
 TODO: Add error handling with Try/Except.
 TODO: Add error logging with the logging module.
 TODO: Add 'appendfile' command
 TODO: Other ideas that come to me along the way.
 TODO: Add 'filesize' command
-FIXME: Using 'createfile' command with no arguments throws an IndexError Traceback; Add error handling to this.
 
 
 """
@@ -142,12 +141,14 @@ while True:
         list()
     elif user_input[0].casefold() == "cd":
         change_directory(user_input[1])
-    elif user_input[0].casefold() == "createfile":
+    elif user_input[0].casefold() == "createfile" or user_input[0] == "makefile":
         try:
             create_file(user_input[1])
         except PermissionError:
             logger.error(f"Error attempting to create file {user_input[1]}: Permission denied")
             logger.debug("Developer Note: Use \"debug_uac\" to open an elevated instance.")
+        except IndexError:
+            logger.error(f"Error attempting to create file: No file name provided!")
     elif user_input[0].casefold() == "md" or user_input[0].casefold() == "mkdir":
         try:
             make_directory(user_input[1])
