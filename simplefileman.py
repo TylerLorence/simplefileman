@@ -1,18 +1,20 @@
 import os
 import sys
 import ctypes
+import shutil
 import logging
 
 
 """
 simplefileman - CLI-Based File Manager by Tyler Lorence
-Version Pre-Indev (SNAPSHOT 4.4)
+Version Pre-Indev (SNAPSHOT 4.5)
 
 TODO: Add error handling with Try/Except.
 TODO: Add error logging with the logging module.
 TODO: Add 'appendfile' command
 TODO: Other ideas that come to me along the way.
 TODO: Add 'filesize' command
+FIXME: Using 'createfile' command with no arguments throws an IndexError Traceback; Add error handling to this.
 
 
 """
@@ -69,6 +71,11 @@ def remove_directory(directory_name):
         os.rmdir(directory_name)
     except FileNotFoundError:
         logger.error(f"Error attempting to remove directory: Cannot find the directory {directory_name}")
+    except OSError as e:
+        if "The directory is not empty:" not in str(e):
+            logger.error(f"An unknown error has occured! Please contact the developer about this issue\nAttempted Action: Removing directory (remove_directory) with parameter {directory_name}\nError Thrown: {e}\nNote: The error does not have the string \"The directory is not empty:\" in it.")
+            return
+        shutil.rmtree(directory_name)
 
 def read(file):
     try:
