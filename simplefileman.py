@@ -7,7 +7,7 @@ import logging
 
 """
 simplefileman - CLI-Based File Manager by Tyler Lorence
-Version Pre-Indev (SNAPSHOT 4.5.1)
+Version Pre-Indev (SNAPSHOT 4.5.2)
 
 TODO: Add error handling with Try/Except.
 TODO: Add error logging with the logging module.
@@ -38,7 +38,10 @@ logger.addHandler(file_handler)
 
 logger.info("Program started!")
 
-os.chdir("C:\\")
+try:
+    os.chdir("C:\\")
+except FileNotFoundError:
+    logger.info("Error: The \"C:\\\" directory could not be found. Not changing directory.")
 
 def list():
     with os.scandir() as dir_iter:
