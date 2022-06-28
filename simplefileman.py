@@ -7,13 +7,14 @@ import logging
 
 """
 simplefileman - CLI-Based File Manager by Tyler Lorence
-Version Pre-Indev (SNAPSHOT 4.6.1 Test-3)
+Version Pre-Indev (SNAPSHOT 4.6.1 Test-4)
 
 TODO: Add error handling with Try/Except.
 TODO: Add error logging with the logging module.
 TODO: Add 'appendfile' command
 TODO: Other ideas that come to me along the way.
 TODO: Add 'filesize' command
+FIXME: PermissionError Exception is thrown when access to a directory is denied (trying to find total size of a directory via the 'ls' command)
 
 
 """
@@ -65,10 +66,10 @@ def find_directory_size(folder, first_call):
         counter = 0
     with os.scandir(folder) as folderiter:
         for element in folderiter:
-            print(f"Element: {element} / Counter: {counter}")
+            logger.debug(f"Element: {element} / Counter: {counter}")
             if element.is_dir():
                 counter += dfilesize(element)
-                print(f"Found directory {element} / Counter: {counter}")
+                logger.debug(f"Found directory {element} / Counter: {counter}")
                 find_directory_size(element, False)
             else:
                 counter += dfilesize(element)
@@ -80,7 +81,7 @@ def list():
             if element.is_file():
                 print(f"{element.name}     ({filesize(element)})")
             elif element.is_dir():
-                print(f"[DIR] {element.name}")
+                print(f"[DIR] {element.name}     {find_directory_size(element, True)}")
             else:
                 logger.error("There was an error ")
 

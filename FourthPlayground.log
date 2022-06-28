@@ -1,5 +1,4 @@
-2022-06-27 22:11:41,169 [__main__ / INFO]: Program started!
-2022-06-27 22:11:42,204 [__main__ / INFO]: Entering developer mode.
-2022-06-27 22:12:03,254 [__main__ / ERROR]: Dev Error: Invalid Command Provided!
-2022-06-27 22:12:04,856 [__main__ / ERROR]: Dev Error: Invalid Command Provided!
-2022-06-27 22:12:10,373 [__main__ / INFO]: Exiting developer mode.
+2022-06-27 22:16:37,481 [__main__ / INFO]: Program started!
+2022-06-27 22:16:43,651 [__main__ / DEBUG]: Element: <DirEntry 'AstronomiaRemix.mp3'> / Counter: 0
+2022-06-27 22:16:43,652 [__main__ / DEBUG]: Element: <DirEntry 'BadPiggiesMegalovania.mp3'> / Counter: 3050266
+[Insert many private files here]
