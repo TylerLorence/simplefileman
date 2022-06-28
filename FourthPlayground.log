@@ -1,3 +1,5 @@
-2022-06-27 21:53:30,251 [__main__ / INFO]: Program started!
-2022-06-27 21:53:31,151 [__main__ / INFO]: Entering developer mode.
-2022-06-27 21:53:44,437 [__main__ / ERROR]: Dev Error: Invalid Command Provided!
+2022-06-27 22:11:41,169 [__main__ / INFO]: Program started!
+2022-06-27 22:11:42,204 [__main__ / INFO]: Entering developer mode.
+2022-06-27 22:12:03,254 [__main__ / ERROR]: Dev Error: Invalid Command Provided!
+2022-06-27 22:12:04,856 [__main__ / ERROR]: Dev Error: Invalid Command Provided!
+2022-06-27 22:12:10,373 [__main__ / INFO]: Exiting developer mode.
