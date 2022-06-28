@@ -7,14 +7,13 @@ import logging
 
 """
 simplefileman - CLI-Based File Manager by Tyler Lorence
-Version Pre-Indev (SNAPSHOT 4.6.1 Test-5)
+Version Pre-Indev (SNAPSHOT 4.6.1 Test-6)
 
 TODO: Add error handling with Try/Except.
 TODO: Add error logging with the logging module.
 TODO: Add 'appendfile' command
 TODO: Other ideas that come to me along the way.
 TODO: Add 'filesize' command
-FIXME: PermissionError Exception is thrown when access to a directory is denied (trying to find total size of a directory via the 'ls' command)
 
 
 """
@@ -64,24 +63,37 @@ def find_directory_size(folder, first_call):
     if first_call:
         global counter
         counter = 0
-    with os.scandir(folder) as folderiter:
-        for element in folderiter:
-            # logger.debug(f"Element: {element} / Counter: {counter}") # # Having these enabled and running 'ls' on my OS drive was a big mistake.
-            if element.is_dir():
-                try:
-                    counter += dfilesize(element)
-                    # logger.debug(f"Found directory {element} / Counter: {counter}") # Having these enabled and running 'ls' on my OS drive was a big mistake.
-                    find_directory_size(element, False)
-                except PermissionError:
-                    logger.error(f"Error attempting to get directory '{element}' via 'ls' command: Access Denied")
-            else:
-                try:
-                    counter += dfilesize(element)
-                except PermissionError:
-                    logger.error(f"Error attempting to get file '{element}' via 'ls' command: Access Denied")
-        return counter
+    try:
+        with os.scandir(folder) as folderiter:
+            for element in folderiter:
+                # logger.debug(f"Element: {element} / Counter: {counter}") # # Having these enabled and running 'ls' on my OS drive was a big mistake.
+                if element.is_dir():
+                    try:
+                        counter += dfilesize(element)
+                        # logger.debug(f"Found directory {element} / Counter: {counter}") # Having these enabled and running 'ls' on my OS drive was a big mistake.
+                        find_directory_size(element, False)
+                    except PermissionError:
+                        logger.debug(f"Error attempting to get directory '{element}' via 'ls' command: Access Denied")
+                else:
+                    try:
+                        counter += dfilesize(element)
+                    except PermissionError:
+                        logger.debug(f"Error attempting to get file '{element}' via 'ls' command: Access Denied")
+            return counter
+    except PermissionError:
+        logger.debug(f"Error attempting to get directory '{folder}' via 'ls' command: Access Denied")
 
 def list():
+    with os.scandir() as dir_iter:
+        for element in dir_iter:
+            if element.is_file():
+                print(f"{element.name}")
+            elif element.is_dir():
+                print(f"[DIR] {element.name}")
+            else:
+                logger.error("There was an error ")
+
+def list2():
     with os.scandir() as dir_iter:
         for element in dir_iter:
             if element.is_file():
@@ -166,7 +178,23 @@ command_information = {
 while True:
     user_input = input(f"{os.getcwd()}>").split(" ")
     if user_input[0].casefold() == "ls" or user_input[0].casefold() == "dir":
-        list()
+        try:
+            if user_input[1].casefold() == "-enablesize":
+                while True:
+                    confirmation = input("Warning: Using the \"-enablesize\" flag with the \"ls\" command may result in high resource usage and lag while indexing large files/folders. Would you like to continue? (Y/N) > ")
+                    if confirmation.casefold() == "y":
+                        list2()
+                        break
+                    elif confirmation.casefold() == "n":
+                        print("Cancelled")
+                        break
+                    else:
+                        print("Invalid Option! Please enter \"y\" or \"n\"")
+                        continue
+            else:
+                list()
+        except IndexError:
+            list()
     elif user_input[0].casefold() == "cd":
         change_directory(user_input[1])
     elif user_input[0].casefold() == "createfile" or user_input[0] == "makefile":
