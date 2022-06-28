@@ -7,7 +7,7 @@ import logging
 
 """
 simplefileman - CLI-Based File Manager by Tyler Lorence
-Version Pre-Indev (SNAPSHOT 4.6.1 Test-1)
+Version Pre-Indev (SNAPSHOT 4.6.1 Test-2)
 
 TODO: Add error handling with Try/Except.
 TODO: Add error logging with the logging module.
@@ -43,25 +43,31 @@ try:
 except FileNotFoundError:
     logger.info("Error: The \"C:\\\" directory could not be found. Not changing directory.")
 
-def dfilesize(file):
+def filesize(file):
     if os.stat(file).st_size < 1000:
-        return f"{os.stat(file).st_size} B"
+        return f"Size of File {file}: {os.stat(file).st_size} Bytes"
     elif os.stat(file).st_size >= 1000 and os.stat(file).st_size < 1000000:
-        return f"{round((os.stat(file).st_size / 1000), 2)} KB"
+        return f"Size of File {file}: {round((os.stat(file).st_size / 1000), 2)} Kilobytes"
     elif os.stat(file).st_size >= 1000000 and os.stat(file).st_size < 1000000000:
-        return f"{round((os.stat(file).st_size / 1000000), 2)} MB"
+        return f"Size of File {file}: {round((os.stat(file).st_size / 1000000), 2)} Megabytes"
     elif os.stat(file).st_size >= 1000000000 and os.stat(file).st_size < 1000000000000:
-        return f"{round((os.stat(file).st_size / 1000000000), 2)} GB"
+        return f"Size of File {file}: {round((os.stat(file).st_size / 1000000000), 2)} Gigabytes"
     elif os.stat(file).st_size >= 1000000000000:
-        return f"{round((os.stat(file).st_size / 1000000000000), 2)} TB"
+        return f"Size of File {file}: {round((os.stat(file).st_size / 1000000000000), 2)} Terabytes"
 
-def test_iterate_through_folder(folder):
+
+def dfilesize(file):
+    return os.stat(file).st_size
+
+def find_directory_size(folder):
     with os.scandir(folder) as folderiter:
+        counter = 0
         for element in folderiter:
             if element.is_dir():
-                test_iterate_through_folder(element)
+                counter += dfilesize(element)
+                find_directory_size(element)
             elif element.is_file():
-                print(f"{element.name} is a file! // Size: {dfilesize(element)}")
+                counter += dfilesize(element)
             else:
                 print("We\'re no strangers to love.... You know the rules, and so do I...")
 
@@ -69,7 +75,7 @@ def list():
     with os.scandir() as dir_iter:
         for element in dir_iter:
             if element.is_file():
-                print(f"{element.name}     ({dfilesize(element)})")
+                print(f"{element.name}     ({filesize(element)})")
             elif element.is_dir():
                 print(f"[DIR] {element.name}")
             else:
@@ -123,19 +129,6 @@ def write_to_file(*contents):
             f.write(joined_contents)
     else:
         logger.error(f"Error attempting to write to file: Cannot find the file {contents[0][1]}")
-
-
-def filesize(file):
-    if os.stat(file).st_size < 1000:
-        return f"Size of File {file}: {os.stat(file).st_size} Bytes"
-    elif os.stat(file).st_size >= 1000 and os.stat(file).st_size < 1000000:
-        return f"Size of File {file}: {round((os.stat(file).st_size / 1000), 2)} Kilobytes"
-    elif os.stat(file).st_size >= 1000000 and os.stat(file).st_size < 1000000000:
-        return f"Size of File {file}: {round((os.stat(file).st_size / 1000000), 2)} Megabytes"
-    elif os.stat(file).st_size >= 1000000000 and os.stat(file).st_size < 1000000000000:
-        return f"Size of File {file}: {round((os.stat(file).st_size / 1000000000), 2)} Gigabytes"
-    elif os.stat(file).st_size >= 1000000000000:
-        return f"Size of File {file}: {round((os.stat(file).st_size / 1000000000000), 2)} Terabytes"
 
 
 
