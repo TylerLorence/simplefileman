@@ -7,7 +7,7 @@ import logging
 
 """
 simplefileman - CLI-Based File Manager by Tyler Lorence
-Version Pre-Indev (SNAPSHOT 4.6.1 Test-6)
+Version Pre-Indev (SNAPSHOT 4.6.1)
 
 TODO: Add error handling with Try/Except.
 TODO: Add error logging with the logging module.
@@ -59,6 +59,20 @@ def filesize(file):
 def dfilesize(file):
     return os.stat(file).st_size
 
+
+def file_size_fix(size):
+    if size < 1000:
+        return size
+    elif size >= 1000 and size < 1000000:
+        return f"{round((size / 1000), 2)} KB"
+    elif size >= 1000000 and size < 1000000000:
+        return f"{round((size / 1000000), 2)} MB"
+    elif size >= 1000000000 and size < 1000000000000:
+        return f"{round((size / 1000000000), 2)} GB"
+    elif size >= 1000000000000:
+        return f"{round((size / 1000000000000), 2)} TB"
+
+
 def find_directory_size(folder, first_call):
     if first_call:
         global counter
@@ -79,7 +93,7 @@ def find_directory_size(folder, first_call):
                         counter += dfilesize(element)
                     except PermissionError:
                         logger.debug(f"Error attempting to get file '{element}' via 'ls' command: Access Denied")
-            return counter
+            return file_size_fix(counter)
     except PermissionError:
         logger.debug(f"Error attempting to get directory '{folder}' via 'ls' command: Access Denied")
 
@@ -97,7 +111,7 @@ def list2():
     with os.scandir() as dir_iter:
         for element in dir_iter:
             if element.is_file():
-                print(f"{element.name}     ({filesize(element)})")
+                print(f"{element.name}     ({file_size_fix(os.stat(element).st_size)})")
             elif element.is_dir():
                 print(f"[DIR] {element.name}     {find_directory_size(element, True)}")
             else:
