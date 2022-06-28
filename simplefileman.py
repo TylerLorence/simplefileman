@@ -7,7 +7,7 @@ import logging
 
 """
 simplefileman - CLI-Based File Manager by Tyler Lorence
-Version Pre-Indev (SNAPSHOT 4.5.2)
+Version Pre-Indev (SNAPSHOT 4.6)
 
 TODO: Add error handling with Try/Except.
 TODO: Add error logging with the logging module.
@@ -43,11 +43,23 @@ try:
 except FileNotFoundError:
     logger.info("Error: The \"C:\\\" directory could not be found. Not changing directory.")
 
+def dfilesize(file):
+    if os.stat(file).st_size < 1000:
+        return f"{os.stat(file).st_size} B"
+    elif os.stat(file).st_size >= 1000 and os.stat(file).st_size < 1000000:
+        return f"{round((os.stat(file).st_size / 1000), 2)} KB"
+    elif os.stat(file).st_size >= 1000000 and os.stat(file).st_size < 1000000000:
+        return f"{round((os.stat(file).st_size / 1000000), 2)} MB"
+    elif os.stat(file).st_size >= 1000000000 and os.stat(file).st_size < 1000000000000:
+        return f"{round((os.stat(file).st_size / 1000000000), 2)} GB"
+    elif os.stat(file).st_size >= 1000000000000:
+        return f"{round((os.stat(file).st_size / 1000000000000), 2)} TB"
+
 def list():
     with os.scandir() as dir_iter:
         for element in dir_iter:
             if element.is_file():
-                print(f"{element.name}")
+                print(f"{element.name}     ({dfilesize(element)})")
             elif element.is_dir():
                 print(f"[DIR] {element.name}")
             else:
