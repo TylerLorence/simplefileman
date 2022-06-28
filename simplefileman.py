@@ -7,7 +7,7 @@ import logging
 
 """
 simplefileman - CLI-Based File Manager by Tyler Lorence
-Version Pre-Indev (SNAPSHOT 4.6)
+Version Pre-Indev (SNAPSHOT 4.6.1 Test-1)
 
 TODO: Add error handling with Try/Except.
 TODO: Add error logging with the logging module.
@@ -54,6 +54,16 @@ def dfilesize(file):
         return f"{round((os.stat(file).st_size / 1000000000), 2)} GB"
     elif os.stat(file).st_size >= 1000000000000:
         return f"{round((os.stat(file).st_size / 1000000000000), 2)} TB"
+
+def test_iterate_through_folder(folder):
+    with os.scandir(folder) as folderiter:
+        for element in folderiter:
+            if element.is_dir():
+                test_iterate_through_folder(element)
+            elif element.is_file():
+                print(f"{element.name} is a file! // Size: {dfilesize(element)}")
+            else:
+                print("We\'re no strangers to love.... You know the rules, and so do I...")
 
 def list():
     with os.scandir() as dir_iter:
